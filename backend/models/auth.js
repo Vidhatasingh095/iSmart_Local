@@ -239,14 +239,25 @@ router.post('/reset-password-mobile', async (req, res) => {
 router.post('/google-signin', async (req, res) => {
     const { token } = req.body;
     try {
+        console.log('Google Sign-In: Starting verification for token of length:', token?.length || 0);
+        
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: "486216064813-qr8cflm6racj1pku2lqldfpogedp4h5d.apps.googleusercontent.com",
         });
-        const { name, email, sub } = ticket.getPayload();
+        
+        const payload = ticket.getPayload();
+        console.log('Google Sign-In: Token verified successfully! Payload:', {
+            name: payload.name,
+            email: payload.email,
+            sub: payload.sub
+        });
+        
+        const { name, email, sub } = payload;
 
         let user = await User.findOne({ email });
         if (!user) {
+            console.log('Google Sign-In: Creating new user for:', email);
             user = new User({
                 name,
                 email,
@@ -256,6 +267,7 @@ router.post('/google-signin', async (req, res) => {
             });
             await user.save();
         } else {
+            console.log('Google Sign-In: Found existing user for:', email);
             // Enforce admin role only for configured email
             if (email.toLowerCase() === ADMIN_EMAIL && user.role !== 'admin') {
                 user.role = 'admin';
@@ -268,6 +280,7 @@ router.post('/google-signin', async (req, res) => {
         }
 
         const jwtToken = jwt.sign({ id: user._id, role: user.role }, "secret_key", { expiresIn: '1h' });
+        console.log('Google Sign-In: JWT generated, sending response');
         res.status(200).json({
             msg: 'Signed in successfully',
             token: jwtToken,
@@ -275,8 +288,15 @@ router.post('/google-signin', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Google Sign-In Error:', error);
-        res.status(400).json({ msg: 'Invalid Google token' });
+        console.error('Google Sign-In Error Details:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code
+        });
+        res.status(400).json({ 
+            msg: 'Invalid Google token',
+            error: error.message 
+        });
     }
 });
 

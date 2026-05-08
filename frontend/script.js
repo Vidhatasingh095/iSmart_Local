@@ -246,6 +246,7 @@ window.onload = function () {
 
 async function handleCredentialResponse(response) {
     try {
+        console.log('Google credential received:', { length: response.credential?.length || 0 });
         const res = await fetch(`${API_URL}/google-signin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -261,9 +262,11 @@ async function handleCredentialResponse(response) {
             localStorage.setItem('userRole', role === 'user' ? 'Student' : role.charAt(0).toUpperCase() + role.slice(1));
             window.location.href = `/dashboard.html?role=${encodeURIComponent(role)}`;
         } else {
-            alert(data.msg || 'Google Sign-In failed');
+            console.error('Google Sign-In failed:', data);
+            alert(`${data.msg || 'Google Sign-In failed'}${data.error ? ' - ' + data.error : ''}`);
         }
     } catch (error) {
         console.error('Google Sign-In Error:', error);
+        alert('Server error during Google Sign-In: ' + error.message);
     }
 }
