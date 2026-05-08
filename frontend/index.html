@@ -1,193 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
-    <link rel="icon" href="logo.svg" type="image/svg+xml">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Bus Tracker</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>BusTrack - Real-time Bus Tracking</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- Leaflet CSS for potential map preload issues prevention -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const svgUrl = 'logo.svg';
-            const sizes = [32, 180];
-            sizes.forEach(size => {
-                const img = new Image();
-                img.src = svgUrl;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = size;
-                    canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, size, size);
-                    const href = canvas.toDataURL('image/png');
-                    let link = document.querySelector(`link[rel="${size===180?'apple-touch-icon':'icon'}"][data-generated="true"]`);
-                    if (!link) {
-                        link = document.createElement('link');
-                        link.rel = size===180 ? 'apple-touch-icon' : 'icon';
-                        if (size!==180) link.sizes = size+'x'+size;
-                        link.type = 'image/png';
-                        link.setAttribute('data-generated','true');
-                        document.head.appendChild(link);
-                    }
-                    link.href = href;
-                };
-            });
-        });
-    </script>
 </head>
 <body>
+    <!-- Login Container -->
     <div class="auth-container" id="login-container">
-        <div class="auth-form-container">
-            <div class="auth-header">
-                <img src="logo.svg" alt="Logo" class="auth-logo">
-                <h1 class="auth-title">Track Your Journey <span class="highlight">Live & Safe</span></h1>
-                <p class="auth-subtitle">Seamless. Reliable. Smart</p>
+        <div class="auth-header">
+            <div class="logo-box">
+                <img src="logo.svg" alt="BusTrack Logo" class="auth-logo">
             </div>
-            <form id="login-form" class="auth-form">
-                <div class="input-wrapper">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" placeholder="exam@example.com" required autocapitalize="none" spellcheck="false" />
-                </div>
-                <div class="input-wrapper">
-                    <label for="login-password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="login-password" placeholder="••••••••" required />
-                        <span class="toggle-password" data-target="login-password" style="cursor:pointer" title="Show/Hide Password">👁️</span>
-                    </div>
-                </div>
-                <p id="login-error" style="display:none; background:#2b1a1a; color:#ff7b7b; border:1px solid #7a2f2f; padding:10px; border-radius:10px; font-weight:bold; margin-bottom:10px;">Incorrect email or password</p>
-                <button type="submit" class="btn btn-primary-orange">Log In</button>
-                <div class="separator">or</div>
-                <button type="button" class="btn btn-secondary google-signin-btn">
-                    <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google logo"/> Continue with Google
-                </button>
-            </form>
-            <div class="auth-links">
-                <a href="#" id="forgot-password-link">Forgot Password?</a>
-                <a href="#" id="help-link">Help</a>
-            </div>
-            <p class="auth-footer-text">Don't have an account? <a href="#" id="show-signup-from-login">Create an account</a></p>
+            <h1 class="brand-name">BusTrack</h1>
+            <p class="brand-subtitle">Real-time bus tracking at your fingertips</p>
         </div>
-        <p class="terms-text">By signing in, you agree to our <a href="#">Terms of Service</a>.</p>
+
+        <div class="auth-form-container">
+            <h2 class="form-title">Welcome Back</h2>
+            <p class="form-subtitle">Sign in to continue your journey</p>
+
+            <form id="login-form">
+                <div class="error-message" id="login-error"></div>
+                
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="login-email" class="auth-input" placeholder="Email address" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-regular fa-lock input-icon"></i>
+                    <input type="password" id="login-password" class="auth-input" placeholder="Password" required>
+                    <i class="fa-regular fa-eye password-toggle" data-target="login-password"></i>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Sign In <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div class="separator">or continue with</div>
+
+                <div class="google-signin-btn-container">
+                    <div class="google-signin-btn"></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="#" id="show-signup-from-login">Sign Up</a></p>
+            <a href="#" class="admin-link" id="show-admin-login">
+                <i class="fa-solid fa-shield-halved"></i> Admin Login
+            </a>
+        </div>
     </div>
 
-    <div class="auth-container" id="help-container" style="display: none;">
-        <div class="auth-form-container">
-            <div class="auth-header">
-                <h1 class="auth-title">Help & Support</h1>
-                <p class="auth-subtitle">Contact us if you need any assistance.</p>
+    <!-- Signup Container -->
+    <div class="auth-container" id="signup-container" style="display: none;">
+        <div class="auth-header">
+            <div class="logo-box">
+                <img src="logo.svg" alt="BusTrack Logo" class="auth-logo">
             </div>
-            <div class="help-content">
-                <p>For any support queries, you can reach out to us via:</p>
-                <div class="contact-info">
-                    <a href="mailto:svidhata95@gmail.com" class="contact-link">
-                        <strong>Email:</strong> svidhata95@gmail.com
-                    </a>
-                    <a href="tel:+919565914660" class="contact-link">
-                        <strong>Phone:</strong> +91 9565914660
-                    </a>
-                </div>
-            </div>
-            <p class="auth-footer-text"><a href="#" id="show-login-from-help">Back to Log in</a></p>
+            <h1 class="brand-name">Join BusTrack</h1>
+            <p class="brand-subtitle">Create your account in seconds</p>
         </div>
-    </div>
-</body>
-</html>    <div class="auth-container" id="forgot-password-container" style="display: none;">
+
         <div class="auth-form-container">
-            <div class="auth-header">
-                <h1 class="auth-title">Forgot Password?</h1>
-                <p class="auth-subtitle">Enter your email to receive a reset link.</p>
+            <div class="google-signin-btn-container">
+                <div class="google-signin-btn"></div>
             </div>
-            <form id="forgot-password-form" class="auth-form">
-                <div class="input-wrapper">
-                    <label for="forgot-email">Email</label>
-                    <input type="email" id="forgot-email" placeholder="example@company.com" required />
+
+            <div class="separator">or sign up with email</div>
+
+            <form id="signup-form">
+                <div class="input-group">
+                    <i class="fa-regular fa-user input-icon"></i>
+                    <input type="text" id="signup-name" class="auth-input" placeholder="Full name" required>
                 </div>
-                <button type="submit" class="btn btn-primary-orange">Send Reset Link</button>
-            </form>
-            <p class="auth-footer-text"><a href="#" id="show-login-from-forgot">Back to Log in</a></p>
-        </div>
-    </div>
-</body>
-</html>    <div class="auth-container" id="forgot-password-container" style="display: none;">
-        <div class="auth-form-container">
-            <div class="auth-header">
-                <h1 class="auth-title">Forgot Password?</h1>
-                <p class="auth-subtitle">Enter your email to receive a reset link.</p>
-            </div>
-            <form id="forgot-password-form" class="auth-form">
-                <div class="input-wrapper">
-                    <label for="forgot-email">Email</label>
-                    <input type="email" id="forgot-email" placeholder="example@company.com" required />
+
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="signup-email" class="auth-input" placeholder="Email address" required>
                 </div>
-                <button type="submit" class="btn btn-primary-orange">Send Reset Link</button>
-            </form>
-            <p class="auth-footer-text"><a href="#" id="show-login-from-forgot">Back to Log in</a></p>
-        </div>
-    </div>
-</body>
-</html>    <div class="auth-container" id="signup-container" style="display: none;">
-        <div class="auth-form-container">
-            <div class="auth-header">
-                <img src="logo.svg" alt="Logo" class="auth-logo">
-                <h1 class="auth-title">Track Your Journey <span class="highlight">Live & Safe</span></h1>
-                <p class="auth-subtitle">Seamless. Reliable. Smart</p>
-            </div>
-            <form id="signup-form" class="auth-form">
-                <div class="input-wrapper">
-                    <label>Choose Role</label>
-                    <div id="role-selector-signup" style="display:flex;gap:8px;justify-content:center;margin:8px 0;">
-                        <button type="button" data-role="user" class="btn btn-secondary" style="flex:1;">User</button>
-                        <button type="button" data-role="admin" class="btn btn-secondary" style="flex:1;" title="Restricted">Bus Admin</button>
-                    </div>
+
+                <div class="input-group">
+                    <i class="fa-regular fa-lock input-icon"></i>
+                    <input type="password" id="signup-password" class="auth-input" placeholder="Password (min. 8 characters)" required>
                 </div>
-                <div class="form-row" id="signup-name-row">
-                    <div class="input-wrapper">
-                        <label for="signup-firstname">First Name</label>
-                        <input type="text" id="signup-firstname" placeholder="Alex" required />
-                    </div>
-                    <div class="input-wrapper">
-                        <label for="signup-lastname">Last Name</label>
-                        <input type="text" id="signup-lastname" placeholder="Morgan" required />
-                    </div>
+
+                <div class="input-group">
+                    <i class="fa-regular fa-lock input-icon"></i>
+                    <input type="password" id="signup-password-confirm" class="auth-input" placeholder="Confirm Password" required>
                 </div>
-                <div class="input-wrapper">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" placeholder="example@company.com" required autocapitalize="none" spellcheck="false" />
-                </div>
-                <div class="input-wrapper">
-                    <label for="signup-password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="signup-password" placeholder="••••••••" required />
-                        <span class="toggle-password" data-target="signup-password">👁️</span>
-                    </div>
-                </div>
-                <div class="input-wrapper">
-                    <label for="signup-password-confirm">Confirm Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="signup-password-confirm" placeholder="••••••••" required />
-                        <span class="toggle-password" data-target="signup-password-confirm">👁️</span>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Sign Up</button>
-                <div class="separator">or</div>
-                <button type="button" class="btn btn-secondary google-signin-btn">
-                    <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google logo"/> Continue with Google
+
+                <button type="submit" class="btn btn-primary">
+                    Create Account <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </form>
-            <p class="auth-footer-text">Already have an account? <a href="#" id="show-login-from-signup">Log in</a></p>
+
+            <div class="security-text">
+                <i class="fa-solid fa-shield-halved"></i> Your data is encrypted and secure
+            </div>
         </div>
-        <p class="terms-text">By signing in, you agree to our <a href="#">Terms of Service</a>.</p>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="#" id="show-login-from-signup">Sign In</a></p>
+        </div>
+    </div>
+
+    <!-- Admin Login Container -->
+    <div class="auth-container" id="admin-login-container" style="display: none;">
+        <div class="auth-header">
+            <div class="logo-box" style="box-shadow: 0 0 20px rgba(244, 67, 54, 0.2);">
+                <i class="fa-solid fa-shield-halved" style="color: #f44336; font-size: 24px;"></i>
+            </div>
+            <h1 class="brand-name" style="color: #ffffff;">Admin Portal</h1>
+            <p class="brand-subtitle">Restricted access — authorized personnel only</p>
+        </div>
+
+        <div class="auth-form-container">
+            <h2 class="form-title">Administrator Sign In</h2>
+            <p class="form-subtitle">Enter your admin credentials to continue</p>
+
+            <form id="admin-login-form">
+                <div class="error-message" id="admin-login-error"></div>
+
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="admin-email" class="auth-input" placeholder="Admin email address" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-regular fa-lock input-icon"></i>
+                    <input type="password" id="admin-password" class="auth-input" placeholder="Admin password" required>
+                    <i class="fa-regular fa-eye password-toggle" data-target="admin-password"></i>
+                </div>
+
+                <button type="submit" class="btn btn-admin">
+                    <i class="fa-solid fa-shield-halved"></i> Admin Login <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="security-text">
+                <i class="fa-solid fa-shield-halved"></i> Protected access — unauthorized attempts are logged
+            </div>
+        </div>
+
+        <div class="auth-footer">
+            <p>Not an admin? <a href="#" id="show-user-login">User Login</a></p>
+        </div>
+    </div>
+
+    <!-- Forgot Password Container -->
+    <div class="auth-container" id="forgot-password-container" style="display: none;">
+        <div class="auth-header">
+            <div class="logo-box">
+                <i class="fa-solid fa-key" style="color: var(--primary-orange); font-size: 24px;"></i>
+            </div>
+            <h1 class="brand-name">Reset Password</h1>
+            <p class="brand-subtitle">We'll help you get back into your account</p>
+        </div>
+
+        <div class="auth-form-container">
+            <h2 class="form-title">Forgot Password?</h2>
+            <p class="form-subtitle">Enter your email to receive a reset link</p>
+
+            <form id="forgot-password-form">
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="forgot-email" class="auth-input" placeholder="Enter your email" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Send Reset Link <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            <a href="#" id="show-login-from-forgot">Back to Sign In</a>
+        </div>
+    </div>
+
+    <!-- Help Container -->
+    <div class="auth-container" id="help-container" style="display: none;">
+        <div class="auth-header">
+            <div class="logo-box">
+                <i class="fa-solid fa-headset" style="color: var(--primary-orange); font-size: 24px;"></i>
+            </div>
+            <h1 class="brand-name">Help & Support</h1>
+            <p class="brand-subtitle">Contact us for any assistance</p>
+        </div>
+
+        <div class="auth-form-container">
+            <div class="security-text" style="margin-bottom: 24px; font-size: 14px;">
+                For any support queries, reach out via:
+            </div>
+            
+            <a href="mailto:svidhata95@gmail.com" class="btn btn-secondary" style="margin-bottom: 12px; justify-content: flex-start;">
+                <i class="fa-regular fa-envelope" style="margin-right: 8px;"></i> svidhata95@gmail.com
+            </a>
+            
+            <a href="tel:+919565914660" class="btn btn-secondary" style="justify-content: flex-start;">
+                <i class="fa-solid fa-phone" style="margin-right: 8px;"></i> +91 9565914660
+            </a>
+        </div>
+
+        <div class="auth-footer">
+            <a href="#" id="show-login-from-help">Back to Sign In</a>
+        </div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="script.js"></script>
-    
 </body>
 </html>
