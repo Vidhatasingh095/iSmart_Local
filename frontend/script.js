@@ -1,4 +1,5 @@
-const API_URL = '/api/auth';
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_URL = isLocalhost ? 'http://localhost:5000/api/auth' : '/api/auth';
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
