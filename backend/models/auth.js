@@ -66,7 +66,12 @@ router.post('/signup', async (req, res) => {
 
         await user.save();
 
-        res.status(201).json({ msg: "User registered successfully." });
+        const token = jwt.sign({ id: user._id, role: user.role }, "secret_key", { expiresIn: '1h' });
+        res.status(201).json({ 
+            msg: "User registered successfully.", 
+            token, 
+            user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+        });
 
     } catch (err) {
         console.error('Signup Error:', err);

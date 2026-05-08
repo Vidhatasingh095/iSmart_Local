@@ -1,6 +1,13 @@
-const API_URL = 'https://ismart-bus.onrender.com/api/auth';
+const API_URL = '/api/auth';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = user.role || 'user';
+        window.location.href = `/dashboard.html?role=${encodeURIComponent(role)}`;
+        return;
+    }
     // Containers
     const containers = {
         login: document.getElementById('login-container'),
@@ -165,8 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    alert('Signup successful! Please log in.');
-                    showContainer('login');
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user || {}));
+                    
+                    let role = data.role || (data.user && data.user.role) || 'user';
+                    role = role.toLowerCase();
+                    if (role.includes('admin')) role = 'admin';
+                    
+                    localStorage.setItem('isAdminAllowed', role === 'admin' ? 'true' : 'false');
+                    localStorage.setItem('userRole', role === 'user' ? 'Student' : role.charAt(0).toUpperCase() + role.slice(1));
+                    window.location.href = `/dashboard.html?role=${encodeURIComponent(role)}`;
                 } else {
                     alert(data.msg || 'Signup failed');
                 }
